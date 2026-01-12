@@ -51,20 +51,10 @@ class Screen
     }
     public void SetScreenArea()
     {
-        int bufferLength = 0;
         for (int j=0; j<height; j++)
             for(int i=0; i<width; i++)
             {
-                if (i == 0 && j == 0) buffer[i, j] = (char)9484;
-                else if (i == (width - 2) && j == 0) buffer[i, j] = (char)9488;
-                else if (i == 0 && j == (height - 1)) buffer[i, j] = (char)9492;
-                else if (i == (width - 2) && j == (height - 1)) buffer[i, j] = (char)9496;
-                else if (i == 0 || i == (width - 2)) buffer[i, j] = (char)9474;
-                else if (i == (width - 1) && j != (height - 1)) buffer[i, j] = (char)10;
-                else if (i == (width - 1) && j == (height - 1)) buffer[i, j] = '\0';
-                else if (j == 0 || j == (height - 1)) buffer[i, j] = (char)9472;
-                else buffer[i, j] = (char)9617;
-                bufferLength++;
+                buffer[i, j] = GraphicSymbols.GetScreenSymbol([i, j], width, height);
             }
     }
     public void DrawScreen()
