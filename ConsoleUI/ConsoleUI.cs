@@ -1,10 +1,15 @@
-﻿namespace ConsoleUI;
+﻿using System.Text;
+
+namespace ConsoleUI;
 public class Window
 {
     Screen screen;
     Cursor cursor { get; }
     public Window()
     {
+        Console.OutputEncoding = Encoding.UTF8;
+        Console.InputEncoding = Encoding.UTF8;
+
         cursor = new Cursor();
         screen = new Screen(Console.BufferWidth, Console.BufferHeight);
     }
@@ -12,6 +17,8 @@ public class Window
     {
         Console.Clear();
         screen.DrawScreen();
+        // Console.CursorLeft = cursor.GetPosition()[0];
+        // Console.CursorTop = cursor.GetPosition()[1];
     }
     public void AddTextToScreen(string text, int posX, int posY)
     {
@@ -33,6 +40,10 @@ class Cursor
     {
         posX = x;
         posY = y;
+    }
+    public int[] GetPosition()
+    {
+        return [posX, posY];
     }
 }
 class Screen
