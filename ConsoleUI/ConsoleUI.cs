@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Cryptography;
+using System.Text;
 
 namespace ConsoleUI;
 public class Window
@@ -17,8 +18,6 @@ public class Window
     {
         Console.Clear();
         screen.DrawScreen();
-        // Console.CursorLeft = cursor.GetPosition()[0];
-        // Console.CursorTop = cursor.GetPosition()[1];
     }
     public void AddTextToScreen(string text, int posX, int posY)
     {
@@ -48,41 +47,79 @@ class Cursor
 }
 class Screen
 {
-    char[,] buffer = new char[250,250];
-    int width { get; set; }
-    int height { get; set; }
+    int Padding;
+    int Gap;
+    List<ReceiptInputElement> ElementList = new List<ReceiptInputElement>();
+    int childElementsHeight = 0;
+    char[,] buffer = new char[250, 250];
+    int Width { get; set; }
+    int Height { get; set; }
     public Screen(int w, int h)
     {
-        width = w;
-        height = h;
-        for (int i = 0; i < width; i++)
-            for (int j = 0; j < height; j++)
+        Width = w;
+        Height = h;
+        Padding = 2;
+        Gap = 1;
+        AddChildElement(1,4);
+        AddChildElement(1,4);
+        AddChildElement(1,4);
+        AddChildElement(1,4);
+        AddChildElement(1,4);
+
+        for (int i = 0; i < Width; i++)
+            for (int j = 0; j < Height; j++)
                 buffer[i,j] = (char)176;
         SetScreenArea();
+        SetChildElements();
     }
     public void SetScreenArea()
     {
-        for (int j=0; j<height; j++)
-            for(int i=0; i<width; i++)
+        for (int j=0; j<Height; j++)
+            for(int i=0; i<Width; i++)
             {
-                buffer[i, j] = GraphicSymbols.GetScreenSymbol([i, j], width, height);
+                buffer[i, j] = GraphicSymbols.GetScreenSymbol([i, j], Width, Height);
             }
+    }
+    public void SetChildElements()
+    {
+        foreach (var element in ElementList)
+        {
+            element.DrawElement(ref buffer);
+        }
     }
     public void DrawScreen()
     {
-        for (int j = 0; j < height; j++)
-            for (int i = 0; i < width; i++)
+        for (int j = 0; j < Height; j++)
+            for (int i = 0; i < Width; i++)
                 Console.Write(buffer[i, j]);
     }
     public void AddTextToScreen(string text, int posX, int posY)
     {
         int i, j, textIndex=0;
-        for(j=posY; j<height; j++)
+        for(j=posY; j<Height; j++)
             for(i=posX; textIndex<text.Length; i++)
             {
-                if (i == width - 2) break; 
+                if (i == Width - 2) break; 
                 buffer[i, j] = text[textIndex++];
                 if (textIndex == (text.Length)) return;
             }
+    }
+    public void AddChildElement(int type, int height)
+    {
+        ReceiptInputElement newElement;
+        if (ElementList.Count == 0)
+            newElement = new ReceiptInputElement(height, Width - Padding*2 - 2, (Padding+1, Padding+1));
+        else
+        {
+            var previousElementPos = ElementList.Last();
+            (int x, int y) prevElPos = (previousElementPos.StartPoint.x, previousElementPos.EndPoint.y);
+            newElement = new ReceiptInputElement(height, Width - Padding * 2 - 2, (Padding+1, Gap + prevElPos.y));
+        }
+
+        childElementsHeight += height;
+        int innerContentHeight = childElementsHeight + 2 * Padding + (Gap * (ElementList.Count - 1));
+        if (innerContentHeight > Height)
+            Height = innerContentHeight;
+        ElementList.Add(newElement);
     }
 }
