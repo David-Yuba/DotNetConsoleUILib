@@ -6,7 +6,7 @@ internal class UIElement
     public (int x, int y) StartPoint;
     public (int x, int y) EndPoint;
 
-    public void InitElement(int height, int width, (int x, int y)pos)
+    public void InitElement(int height, int width, (int x, int y) pos)
     {
         Height = height;
         Width = width;
@@ -15,5 +15,10 @@ internal class UIElement
     void PositionElement(int x, int y)
     {
         StartPoint = (x, y);
+    }
+    public void ResizeWidth(int newWidth)
+    {
+        Width = newWidth;
+        EndPoint.x = StartPoint.x + Width;
     }
 }

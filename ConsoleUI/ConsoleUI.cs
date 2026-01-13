@@ -23,6 +23,37 @@ public class Window
     {
         screen.AddTextToScreen(text, posX, posY);
     }
+    public void GameLoop()
+    {
+        while (true)
+        {
+            if (Console.KeyAvailable) {
+                ConsoleKeyInfo input = Console.ReadKey(true);
+                if (input.Key == ConsoleKey.Escape) break;
+                if (input.Key == ConsoleKey.J && Console.CursorTop < screen.Height - 1) Console.CursorTop++;
+                if (input.Key == ConsoleKey.K && Console.CursorLeft < screen.Width - 1) Console.CursorLeft++;
+                if (input.Key == ConsoleKey.L && Console.CursorLeft > 0) Console.CursorLeft--;
+                if (input.Key == ConsoleKey.H && Console.CursorTop > 0) Console.CursorTop--;
+                if (input.Key == ConsoleKey.I) Console.ReadLine();
+            }
+            if (Console.BufferHeight != screen.Height || Console.BufferWidth != screen.Width)
+            {
+                Console.Clear();
+                Console.WriteLine("\x1b[3J");
+                screen.Height = Console.BufferHeight;
+                screen.Width = Console.BufferWidth;
+
+                foreach(var element in screen.ElementList)
+                {
+                    element.ResizeWidth(screen.Width - screen.Padding * 2 - 2);
+                }
+
+                screen.SetScreenArea();
+                screen.SetChildElements();
+                DrawScreen();
+            }
+        }
+    }
 }
 
 class Cursor
@@ -47,13 +78,12 @@ class Cursor
 }
 class Screen
 {
-    int Padding;
     int Gap;
-    List<ReceiptInputElement> ElementList = new List<ReceiptInputElement>();
-    int childElementsHeight = 0;
+    public int Padding;
+    public List<ReceiptInputElement> ElementList = new List<ReceiptInputElement>();
     char[,] buffer = new char[250, 250];
-    int Width { get; set; }
-    int Height { get; set; }
+    public int Width { get; set; }
+    public int Height { get; set; }
     public Screen(int w, int h)
     {
         Width = w;
@@ -115,11 +145,6 @@ class Screen
             (int x, int y) prevElPos = (previousElementPos.StartPoint.x, previousElementPos.EndPoint.y);
             newElement = new ReceiptInputElement(height, Width - Padding * 2 - 2, (Padding+1, Gap + prevElPos.y));
         }
-
-        childElementsHeight += height;
-        int innerContentHeight = childElementsHeight + 2 * Padding + (Gap * (ElementList.Count - 1));
-        if (innerContentHeight > Height)
-            Height = innerContentHeight;
         ElementList.Add(newElement);
     }
 }
